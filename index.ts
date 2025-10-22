@@ -10,28 +10,23 @@ function handlePreFlightRequest(): Response {
 
 async function handler(_req: Request): Promise<Response> {
   if (_req.method == "OPTIONS") {
-    return handlePreFlightRequest();
+    handlePreFlightRequest();
   }
 
   const url = new URL(_req.url);
-
-  const guess = decodeURIComponent(url.pathname.split('/').pop()) || "";
-  console.log(`Received guess: ${url}`);
-  const word = "Football";
+  console.log(`Request URL: ${url}`);
+  const guess = decodeURIComponent(url.pathname.split("/").pop() || "");
+  console.log(`Guess parameter: ${guess}`);
 
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
 
-  // Always allow CORS from this endpoint
-  headers.append("Access-Control-Allow-Origin", "*");
-  headers.append("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-
   const similarityRequestBody = JSON.stringify({
-    word1: word,
+    word1: "football",
     word2: guess,
   });
 
-  const requestOptions: RequestInit = {
+  const requestOptions = {
     method: "POST",
     headers: headers,
     body: similarityRequestBody,
@@ -43,9 +38,13 @@ async function handler(_req: Request): Promise<Response> {
 
     if (!response.ok) {
       console.error(`Error: ${response.statusText}`);
-      return new Response(JSON.stringify({ error: response.statusText }), {
-        status: response.status,
-        headers: headers,
+      return new Response(`Error: ${response.statusText}`, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Headers": "content-type",
+        },
       });
     }
 
@@ -54,15 +53,15 @@ async function handler(_req: Request): Promise<Response> {
     console.log(result);
     return new Response(JSON.stringify(result), {
       status: 200,
-      headers: headers,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "content-type",
+      },
     });
   } catch (error) {
     console.error("Fetch error:", error);
-    const msg = error instanceof Error ? error.message : String(error);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: headers,
-    });
+    return new Response(`Error: ${error.message}`, { status: 500 });
   }
 }
 
