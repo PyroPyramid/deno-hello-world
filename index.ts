@@ -13,12 +13,18 @@ async function handler(_req: Request): Promise<Response> {
     handlePreFlightRequest();
   }
 
+  const url = new URL(_req.url);
+
+  const segments = url.pathname.split('/').filter(Boolean); // drops empty segments
+  const guess = segments.length ? decodeURIComponent(segments[segments.length - 1]) : '';
+  const word = "Football";
+
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
 
   const similarityRequestBody = JSON.stringify({
-    word1: "centrale",
-    word2: "supelec",
+    word1: word,
+    word2: guess,
   });
 
   const requestOptions = {
