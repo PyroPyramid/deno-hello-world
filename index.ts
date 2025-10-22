@@ -10,13 +10,14 @@ function handlePreFlightRequest(): Response {
 
 async function handler(_req: Request): Promise<Response> {
   if (_req.method == "OPTIONS") {
-    handlePreFlightRequest();
+    return handlePreFlightRequest();
   }
 
   const url = new URL(_req.url);
 
   const segments = url.pathname.split('/').filter(Boolean); // drops empty segments
   const guess = segments.length ? decodeURIComponent(segments[segments.length - 1]) : '';
+  console.log(`Received guess: ${guess}`);
   const word = "Football";
 
   const headers = new Headers();
